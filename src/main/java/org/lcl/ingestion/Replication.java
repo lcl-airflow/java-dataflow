@@ -17,6 +17,7 @@
  */
 package org.lcl.ingestion;
 
+import com.google.api.services.bigquery.model.TableRow;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.metrics.Counter;
@@ -37,8 +38,8 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import com.google.api.services.bigquery.model.TableReference;
 import org.apache.beam.sdk.values.TypeDescriptors;
-import org.apache.beam.sdk.values.TableRow;
-import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
+import org.apache.beam.sdk.io.gcp.bigquery.*;
+
 /**
  * An example that counts words in Shakespeare and includes Beam best practices.
  *
@@ -184,12 +185,12 @@ public class Replication {
         .setDatasetId("sap")
         .setTableId("mara");
 
-    PCollection<String> maxTemperatures =
-    p.apply(BigQueryIO.readTableRows().from(tableSpec))
+    PCollection<TableRow> maxTemperatures =
+    p.apply(BigQueryIO.readTableRows().from(tableSpec));
         // Each row is of type TableRow
-        .apply(
-            MapElements.into(TypeDescriptors.doubles())
-                .via((TableRow row) -> (Double) row.get("MATNR")));
+     //   .apply(
+     //       MapElements.into(TypeDescriptors.doubles())
+      //          .via((TableRow row) -> (Double) row.get("MATNR")));
 
 
     // Concepts #2 and #3: Our pipeline applies the composite CountWords transform, and passes the
