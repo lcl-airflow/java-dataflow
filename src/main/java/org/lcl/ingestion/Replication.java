@@ -178,8 +178,11 @@ public class Replication {
   } 
   */
 
-  static void runWordCount() {
-    Pipeline p = Pipeline.create();
+  static void run(PipelineOptions O) {
+
+
+
+    Pipeline p = Pipeline.create(O);
     TableReference tableSpec = new TableReference()
         .setProjectId("playground-s-11-8818ca")
         .setDatasetId("sap")
@@ -204,9 +207,8 @@ public class Replication {
   }
 
   public static void main(String[] args) {
-    //WordCountOptions options =
-     //   PipelineOptionsFactory.fromArgs(args).withValidation().as(WordCountOptions.class);
+    PipelineOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().create();
 
-    runWordCount();
+    run(options);
   }
 }
