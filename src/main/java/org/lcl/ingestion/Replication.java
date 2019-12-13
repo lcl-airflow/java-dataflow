@@ -17,7 +17,6 @@
  */
 package org.lcl.ingestion;
 
-import org.lcl.beam.template.common.ExampleUtils;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.metrics.Counter;
@@ -36,6 +35,7 @@ import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import com.google.api.services.bigquery.model.TableReference;
 
 /**
  * An example that counts words in Shakespeare and includes Beam best practices.
@@ -88,29 +88,29 @@ public class Replication {
    * statically out-of-line. This DoFn tokenizes lines of text into individual words; we pass it to
    * a ParDo in the pipeline.
    */
-  static class ExtractWordsFn extends DoFn<String, String> {
-    private final Counter emptyLines = Metrics.counter(ExtractWordsFn.class, "emptyLines");
-    private final Distribution lineLenDist =
-        Metrics.distribution(ExtractWordsFn.class, "lineLenDistro");
+ // static class ExtractWordsFn extends DoFn<String, String> {
+  //  private final Counter emptyLines = Metrics.counter(ExtractWordsFn.class, "emptyLines");
+  //  private final Distribution lineLenDist =
+   //     Metrics.distribution(ExtractWordsFn.class, "lineLenDistro");
 
-    @ProcessElement
-    public void processElement(@Element String element, OutputReceiver<String> receiver) {
-      lineLenDist.update(element.length());
-      if (element.trim().isEmpty()) {
-        emptyLines.inc();
-      }
+    //@ProcessElement
+    //public void processElement(@Element String element, OutputReceiver<String> receiver) {
+     // lineLenDist.update(element.length());
+     // if (element.trim().isEmpty()) {
+     //   emptyLines.inc();
+     // }
 
       // Split the line into words.
-      String[] words = element.split(ExampleUtils.TOKENIZER_PATTERN, -1);
+     // String[] words = element.split(ExampleUtils.TOKENIZER_PATTERN, -1);
 
       // Output each word encountered into the output PCollection.
-      for (String word : words) {
-        if (!word.isEmpty()) {
-          receiver.output(word);
-        }
-      }
-    }
-  }
+      //for (String word : words) {
+       // if (!word.isEmpty()) {
+        //  receiver.output(word);
+        //}
+   // }
+   // }
+ // }
 
   /** A SimpleFunction that converts a Word and Count into a printable string. */
   public static class FormatAsTextFn extends SimpleFunction<KV<String, Long>, String> {
@@ -128,7 +128,7 @@ public class Replication {
    * Count) as a reusable PTransform subclass. Using composite transforms allows for easy reuse,
    * modular testing, and an improved monitoring experience.
    */
-  public static class CountWords
+ /* public static class CountWords
       extends PTransform<PCollection<String>, PCollection<KV<String, Long>>> {
     @Override
     public PCollection<KV<String, Long>> expand(PCollection<String> lines) {
@@ -142,7 +142,7 @@ public class Replication {
       return wordCounts;
     }
   }
-
+*/
   /**
    * Options supported by {@link WordCount}.
    *
@@ -152,12 +152,13 @@ public class Replication {
    *
    * <p>Inherits standard configuration options.
    */
-  public interface WordCountOptions extends PipelineOptions {
+   //public interface WordCountOptions extends PipelineOptions {
 
     /**
      * By default, this example reads from a public dataset containing the text of King Lear. Set
      * this option to choose a different input file or glob.
      */
+    /*
     @Description("Path of the file to read from")
     @Default.String("gs://apache-beam-samples/shakespeare/kinglear.txt")
     String getInputFile();
@@ -165,30 +166,44 @@ public class Replication {
     void setInputFile(String value);
 
     /** Set this required option to specify where to write the output. */
+    /*
     @Description("Path of the file to write to")
     @Required
     String getOutput();
 
     void setOutput(String value);
-  }
+  } 
+  */
 
-  static void runWordCount(WordCountOptions options) {
-    Pipeline p = Pipeline.create(options);
+  static void runWordCount() {
+    Pipeline p = Pipeline.create();
+    TableReference tableSpec = new TableReference()
+        .setProjectId("playground-s-11-8818ca")
+        .setDatasetId("sap")
+        .setTableId("mara");
+
+    PCollection<String> maxTemperatures =
+    p.apply(BigQueryIO.readTableRows().from(tableSpec))
+        // Each row is of type TableRow
+        .apply(
+            MapElements.into(TypeDescriptors.doubles())
+                .via((TableRow row) -> (Double) row.get("MATNR")));
+
 
     // Concepts #2 and #3: Our pipeline applies the composite CountWords transform, and passes the
     // static FormatAsTextFn() to the ParDo transform.
-    p.apply("ReadLines", TextIO.read().from(options.getInputFile()))
-        .apply(new CountWords())
-        .apply(MapElements.via(new FormatAsTextFn()))
-        .apply("WriteCounts", TextIO.write().to(options.getOutput()));
+    //p.apply("ReadLines", TextIO.read().from(options.getInputFile()))
+    //    .apply(new CountWords())
+    //    .apply(MapElements.via(new FormatAsTextFn()))
+    //    .apply("WriteCounts", TextIO.write().to(options.getOutput()));
 
     p.run().waitUntilFinish();
   }
 
   public static void main(String[] args) {
-    WordCountOptions options =
-        PipelineOptionsFactory.fromArgs(args).withValidation().as(WordCountOptions.class);
+    //WordCountOptions options =
+     //   PipelineOptionsFactory.fromArgs(args).withValidation().as(WordCountOptions.class);
 
-    runWordCount(options);
+    runWordCount();
   }
 }
