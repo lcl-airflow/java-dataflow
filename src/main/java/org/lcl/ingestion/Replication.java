@@ -36,7 +36,9 @@ import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import com.google.api.services.bigquery.model.TableReference;
-
+import org.apache.beam.sdk.values.TypeDescriptors;
+import org.apache.beam.sdk.values.TableRow;
+import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 /**
  * An example that counts words in Shakespeare and includes Beam best practices.
  *
