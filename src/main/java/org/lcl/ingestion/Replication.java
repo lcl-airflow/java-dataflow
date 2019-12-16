@@ -180,11 +180,11 @@ public class Replication {
 
   static void run(PipelineOptions O) {
 
-
-
+   
+    
     Pipeline p = Pipeline.create(O);
     TableReference tableSpec = new TableReference()
-        .setProjectId("playground-s-11-8818ca")
+        .setProjectId("playground-s-11-8f457a")
         .setDatasetId("sap")
         .setTableId("mara");
 
@@ -208,7 +208,7 @@ public class Replication {
 
   public static void main(String[] args) {
     PipelineOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().create();
-
-    run(options);
+    PipelineOptionsFactory.printHelp(System.out);
+    //run(options);
   }
 }
